@@ -1,0 +1,1082 @@
+<title>Gece Usturlabı</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;600;700&display=swap">
+<style>
+/* Tasarım dili: "Gece Usturlabı" — pirinç halkalı bir gözlem aletinin göz penceresi.
+   Açık tema: basılı yıldız atlası (kâğıt + mürekkep). Koyu tema: gece laciverdi + pirinç.
+   Gece görüşü: gözlemcilerin kullandığı kırmızı ışık; karanlığa alışmış gözü bozmaz.
+   Yerleşim: solda gökkubbe (kare, kenarında derece halkası), sağda yer/zaman ve "bu gece" listesi. */
+:root {
+  --zemin:#e7ebf1; --yuzey:#f6f8fb; --murekkep:#16223b; --soluk:#58637b; --cizgi:#cbd2de;
+  --pirinc:#865a12; --pirinc-yazi:#fffaf0;
+  --kubbe:#fdfdfb; --kubbe-ufuk:#eceff5; --yildiz:#17233d; --takim:#8494b5; --etiket:#3a4864;
+  --samanyolu:rgba(70,95,150,.09); --gezegen:#865a12;
+  --gun:#d4deee; --alaca:#a9bbd8; --gece:#58698d; --karanlik:#2b3754;
+  --renkli:0;
+  --f-bas:"Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --f-govde:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-veri:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --zemin:#0a1022; --yuzey:#111a33; --murekkep:#e7eaf3; --soluk:#9ba6c0; --cizgi:#27345a;
+  --pirinc:#d8a852; --pirinc-yazi:#1a1206;
+  --kubbe:#08112b; --kubbe-ufuk:#1b2950; --yildiz:#fff8ec; --takim:#5b70a3; --etiket:#b9c2da;
+  --samanyolu:rgba(195,210,255,.075); --gezegen:#f0c46e;
+  --gun:#6f88b8; --alaca:#3e548c; --gece:#1d2b55; --karanlik:#0b142f;
+  --renkli:1; color-scheme:dark;
+} }
+:root[data-theme="dark"] {
+  --zemin:#0a1022; --yuzey:#111a33; --murekkep:#e7eaf3; --soluk:#9ba6c0; --cizgi:#27345a;
+  --pirinc:#d8a852; --pirinc-yazi:#1a1206;
+  --kubbe:#08112b; --kubbe-ufuk:#1b2950; --yildiz:#fff8ec; --takim:#5b70a3; --etiket:#b9c2da;
+  --samanyolu:rgba(195,210,255,.075); --gezegen:#f0c46e;
+  --gun:#6f88b8; --alaca:#3e548c; --gece:#1d2b55; --karanlik:#0b142f;
+  --renkli:1; color-scheme:dark;
+}
+/* Kırmızı gece görüşü: her iki temanın da üstüne yazılır */
+:root[data-gece="1"] {
+  --zemin:#0c0202; --yuzey:#160504; --murekkep:#ff5c47; --soluk:#b8402f; --cizgi:#3b0e09;
+  --pirinc:#ff6b4f; --pirinc-yazi:#160504;
+  --kubbe:#0c0202; --kubbe-ufuk:#200604; --yildiz:#ff7461; --takim:#76200f; --etiket:#d44a37;
+  --samanyolu:rgba(255,80,60,.06); --gezegen:#ff8d6e;
+  --gun:#6a1a10; --alaca:#45100a; --gece:#2a0905; --karanlik:#160403;
+  --renkli:0; color-scheme:dark;
+}
+
+* { box-sizing:border-box; }
+html, body { background:var(--zemin); color:var(--murekkep); }
+body { font:400 16px/1.55 var(--f-govde); }
+button, select, input { font:inherit; color:inherit; }
+:focus-visible { outline:2px solid var(--pirinc); outline-offset:2px; }
+
+/* Telefon önce: tek sütun; başlık → gök → zaman şeridi → seçili cisim → liste → ayarlar */
+.uygulama { display:grid; grid-template-columns:minmax(0,1fr); }
+.sahne {
+  display:grid; gap:12px; align-content:start; min-width:0;
+  padding-block:16px 4px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.ust { display:grid; gap:12px; min-width:0; }
+.baslik { min-width:0; }
+h1 { font:600 italic clamp(30px, 4vw, 42px)/1 var(--f-bas); margin:0; text-wrap:balance; }
+.anlik { margin:4px 0 0; color:var(--soluk); font-size:14px; overflow-wrap:break-word; }
+.anlik b { color:var(--murekkep); font-weight:600; }
+
+/* Katman düğmeleri telefonda tek satır, yana kayar */
+.araclar {
+  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+  margin-inline:-16px; padding:2px 16px;
+}
+.araclar::-webkit-scrollbar { display:none; }
+.cip {
+  flex-shrink:0; min-height:40px; padding:8px 12px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--cizgi); background:var(--yuzey); color:var(--soluk);
+  font-size:13px; font-weight:600; white-space:nowrap; display:inline-flex; align-items:center; gap:8px;
+}
+.cip[aria-pressed="true"] { color:var(--murekkep); border-color:var(--pirinc); }
+.cip[aria-pressed="true"] .nokta { background:var(--pirinc); }
+.nokta { width:8px; height:8px; border-radius:50%; background:var(--cizgi); flex-shrink:0; }
+.cip svg { width:16px; height:16px; flex-shrink:0; }
+.cip.tam-dugme { color:var(--murekkep); }
+.ayrac { width:1px; flex-shrink:0; background:var(--cizgi); margin-block:6px; }
+/* Telefonda en çok kullanılanlar başta: tam ekran ve gece görüşü */
+.tam-dugme { order:-2; }
+#k-gece, .ayrac { order:-1; }
+
+/* Gök: telefonda kenarlara kadar uzanır; tuval her zaman kare, kutunun kısa kenarına sığar */
+.kubbe-kutu { position:relative; width:calc(100% + 16px); margin-inline:-8px; aspect-ratio:1; min-width:0; }
+canvas { position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); display:block; touch-action:manipulation; }
+
+.alt { display:grid; gap:12px; justify-items:center; min-width:0; }
+
+/* Seçili cismin kısa özeti: telefonda ve tam ekranda kart görünmezken haritanın hemen altında */
+.secim {
+  width:100%; max-width:760px; display:flex; align-items:center; gap:12px; min-width:0;
+  padding:8px 8px 8px 14px; border:1px solid var(--pirinc); border-radius:8px; background:var(--yuzey);
+}
+.secim-metin { min-width:0; flex:1; display:grid; }
+.secim-ad { font:600 italic 20px/1.15 var(--f-bas); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.secim-yer { font:500 13px/1.4 var(--f-veri); color:var(--soluk); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.secim-dugme {
+  flex-shrink:0; min-height:40px; padding:8px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;
+  border:1px solid var(--cizgi); background:transparent; color:var(--murekkep);
+}
+@media (min-width:920px) { .uygulama:not(.tam) .secim { display:none; } }
+
+/* Dokunmatik ekranda şeride her yerinden dokunulup sürüklenebilir (iOS'ta yerel kaydırıcı yalnız tutamaçtan tutar) */
+@media (pointer: coarse) {
+  .serit { touch-action:pan-y; }
+  .serit input[type=range] { pointer-events:none; }
+  .serit input[type=range]::-webkit-slider-thumb { width:6px; }
+}
+.durum { margin:0; font-size:14px; color:var(--soluk); text-align:center; max-width:62ch; min-height:1.55em; text-wrap:balance; }
+
+/* Zaman şeridi: arka planı o gecenin gerçek alacakaranlığıdır */
+.zaman { width:100%; max-width:760px; display:grid; gap:6px; }
+.zaman-ust { display:flex; align-items:center; gap:12px; }
+.zaman-ust label { font-size:14px; font-weight:600; color:var(--soluk); margin-right:auto; }
+.saat { font:500 20px/1 var(--f-veri); font-variant-numeric:tabular-nums; color:var(--murekkep); }
+.simdi-dugme {
+  min-height:36px; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;
+  border:1px solid var(--pirinc); background:transparent; color:var(--pirinc); white-space:nowrap;
+}
+.simdi-dugme[aria-pressed="true"] { background:var(--pirinc); color:var(--pirinc-yazi); }
+.serit { position:relative; height:44px; border-radius:6px; overflow:hidden; border:1px solid var(--cizgi); }
+.serit input[type=range] {
+  position:absolute; inset:0; width:100%; height:100%; margin:0; background:transparent;
+  -webkit-appearance:none; appearance:none; cursor:pointer;
+}
+.serit input[type=range]::-webkit-slider-runnable-track { height:100%; background:transparent; }
+.serit input[type=range]::-moz-range-track { height:100%; background:transparent; }
+.serit input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:4px; height:44px; background:var(--pirinc); border:0; border-radius:2px;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--pirinc) 30%, transparent);
+}
+.serit input[type=range]::-moz-range-thumb { width:4px; height:44px; background:var(--pirinc); border:0; border-radius:2px; }
+.saatler { display:flex; justify-content:space-between; font:400 12px/1 var(--f-veri); color:var(--soluk); font-variant-numeric:tabular-nums; }
+.lejant { display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12px; color:var(--soluk); }
+.lejant span { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.lejant i { width:10px; height:10px; border-radius:2px; display:inline-block; border:1px solid var(--cizgi); }
+
+/* Yan bölüm: kart yığını yerine çizgiyle ayrılmış bölümler */
+.yan {
+  display:grid; align-content:start; min-width:0;
+  padding-block:4px 32px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+.blok { display:grid; gap:12px; padding-block:20px; border-top:1px solid var(--cizgi); min-width:0; }
+.blok h2 { margin:0; font-size:12px; font-weight:700; color:var(--soluk); letter-spacing:.06em; }
+.alanlar { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
+.alan { display:grid; gap:4px; min-width:0; }
+.alan.genis { grid-column:1 / -1; }
+.alan label { font-size:13px; color:var(--soluk); }
+.alan select, .alan input {
+  min-height:44px; width:100%; min-width:0; padding:8px 10px; border-radius:6px;
+  border:1px solid var(--cizgi); background:var(--zemin);
+}
+.alan input { font-family:var(--f-veri); font-size:14px; }
+.hata { margin:0; font-size:13px; color:var(--pirinc); }
+.dugme {
+  min-height:44px; padding:10px 16px; border-radius:6px; cursor:pointer; font-weight:700; font-size:14px;
+  border:1px solid var(--pirinc); background:var(--pirinc); color:var(--pirinc-yazi); justify-self:start;
+}
+.dugme.ikincil { background:transparent; color:var(--murekkep); border-color:var(--cizgi); }
+
+/* Seçili gök cismi */
+.kart { gap:8px; }
+.kart h3 { margin:0; font:600 italic 32px/1.05 var(--f-bas); text-wrap:balance; overflow-wrap:anywhere; }
+.kart .tur { margin:0; font-size:13px; color:var(--soluk); }
+.konum { margin:4px 0 0; font:500 14px/1.5 var(--f-veri); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.kart p.oyku { margin:0; font-size:15px; line-height:1.6; max-width:65ch; }
+.olcu { margin:0; font-size:13px; color:var(--soluk); }
+
+/* Bu gece listesi */
+.liste { list-style:none; margin:0 -4px; padding:0; display:grid; }
+.liste li + li { border-top:1px solid var(--cizgi); }
+.satir {
+  width:100%; display:grid; grid-template-columns:20px minmax(0,1fr) auto; gap:4px 12px; align-items:center;
+  padding:10px 4px; background:none; border:0; text-align:left; cursor:pointer; min-height:52px; border-radius:6px;
+}
+.satir:hover { background:color-mix(in srgb, var(--pirinc) 8%, transparent); }
+.satir[aria-current="true"] { background:color-mix(in srgb, var(--pirinc) 14%, transparent); }
+.isaret { width:20px; height:20px; display:grid; place-items:center; }
+.ad { min-width:0; display:grid; }
+.ad b { font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ad small { color:var(--soluk); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.yer { font:500 13px/1.3 var(--f-veri); text-align:right; color:var(--soluk); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.yer.ustte { color:var(--murekkep); }
+
+.dip { font-size:13px; color:var(--soluk); gap:6px; }
+.dip p { margin:0; }
+
+/* Geniş ekran: tek ekranlık uygulama. Gök yüksekliği doldurur, yan panel kendi içinde kayar */
+@media (min-width:920px) {
+  html, body { height:100%; }
+  .uygulama { grid-template-columns:minmax(0,1fr) 380px; grid-template-rows:minmax(0,1fr); height:100%; }
+  .sahne {
+    grid-template-rows:auto minmax(0,1fr) auto; align-content:stretch; min-height:0; gap:8px;
+    padding-block:20px 16px;
+    padding-left:max(28px, env(safe-area-inset-left, 0px)); padding-right:28px;
+  }
+  .ust { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; }
+  .baslik { flex:1 1 220px; }
+  .araclar { flex:0 1 auto; margin:0; padding:0; overflow:visible; flex-wrap:wrap; justify-content:flex-end; }
+  .tam-dugme, #k-gece, .ayrac { order:0; }
+  .kubbe-kutu { width:auto; margin:0; aspect-ratio:auto; min-height:0; }
+  .yan {
+    overflow-y:auto; overscroll-behavior:contain; background:var(--yuzey); border-left:1px solid var(--cizgi);
+    padding-block:0 24px; padding-left:24px; padding-right:max(24px, env(safe-area-inset-right, 0px));
+  }
+  .blok:first-child { border-top:0; }
+}
+@media (min-width:920px) and (max-width:1199px) { .uygulama { grid-template-columns:minmax(0,1fr) 340px; } }
+@media (min-width:1500px) { .uygulama { grid-template-columns:minmax(0,1fr) 420px; } }
+/* Kısa ekranlarda göğe yer aç */
+@media (min-width:920px) and (max-height:860px) {
+  .lejant { display:none; }
+  h1 { font-size:30px; }
+  .durum { font-size:13px; }
+  .sahne { padding-block:14px 12px; }
+}
+
+/* Tam ekran: yalnız gök ve zaman şeridi kalır */
+html.tam, html.tam body { height:100%; }
+.uygulama.tam { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr); height:100%; }
+.uygulama.tam .yan, .uygulama.tam .durum, .uygulama.tam .lejant, .uygulama.tam .gizlenir { display:none; }
+.uygulama.tam .sahne { grid-template-rows:auto minmax(0,1fr) auto; align-content:stretch; min-height:0; }
+.uygulama.tam .kubbe-kutu { width:auto; margin:0; aspect-ratio:auto; min-height:0; }
+.uygulama.tam .ust { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; }
+.uygulama.tam .baslik { flex:1 1 180px; }
+.uygulama.tam .araclar { flex:0 0 auto; }
+.uygulama.tam .araclar { margin:0; padding:0; overflow:visible; }
+.uygulama.tam .zaman { justify-self:center; }
+.uygulama.tam .anlik { margin:0; }
+.uygulama.tam h1 { display:none; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; scroll-behavior:auto !important; } }
+</style>
+
+<div class="uygulama" id="uygulama">
+  <main class="sahne">
+    <header class="ust">
+      <div class="baslik">
+        <h1>Gece Usturlabı</h1>
+        <p class="anlik" id="anlik">Gökyüzü hesaplanıyor…</p>
+      </div>
+      <div class="araclar" role="group" aria-label="Harita katmanları ve görünüm">
+        <button class="cip gizlenir" id="k-cizgi" aria-pressed="true"><span class="nokta"></span>Takımyıldızlar</button>
+        <button class="cip gizlenir" id="k-ad" aria-pressed="true"><span class="nokta"></span>Adlar</button>
+        <button class="cip gizlenir" id="k-sy" aria-pressed="true"><span class="nokta"></span>Samanyolu</button>
+        <button class="cip" id="k-gece" aria-pressed="false" title="Karanlığa alışmış gözü bozmayan kırmızı ışık"><span class="nokta"></span>Gece görüşü</button>
+        <span class="ayrac gizlenir" aria-hidden="true"></span>
+        <button class="cip tam-dugme" id="tam-ekran" aria-pressed="false">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path id="tam-ikon" d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg>
+          <span id="tam-yazi">Tam ekran</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="kubbe-kutu" id="kubbe-kutu">
+      <canvas id="kubbe" role="img" aria-label="Seçilen yer ve saat için gökyüzü haritası. Üst kuzey, sol doğu."></canvas>
+    </div>
+
+    <div class="alt">
+      <div class="secim" id="secim" hidden>
+        <div class="secim-metin"><span class="secim-ad" id="secim-ad"></span><span class="secim-yer" id="secim-yer"></span></div>
+        <button class="secim-dugme" id="secim-ayrinti" type="button">Ayrıntı</button>
+      </div>
+      <p class="durum" id="durum"></p>
+      <div class="zaman">
+        <div class="zaman-ust">
+          <label for="kaydir">Gece boyunca kaydır</label>
+          <span class="saat" id="saat">--:--</span>
+          <button class="simdi-dugme" id="simdi" aria-pressed="true">Şimdi</button>
+        </div>
+        <div class="serit" id="serit">
+          <input type="range" id="kaydir" min="0" max="1440" step="5" value="540" aria-describedby="saat">
+        </div>
+        <div class="saatler" aria-hidden="true"><span>12</span><span>15</span><span>18</span><span>21</span><span>00</span><span>03</span><span>06</span><span>09</span><span>12</span></div>
+        <div class="lejant"><span><i style="background:var(--gun)"></i>Gündüz</span><span><i style="background:var(--alaca)"></i>Alacakaranlık</span><span><i style="background:var(--gece)"></i>Astronomik alaca</span><span><i style="background:var(--karanlik)"></i>Tam karanlık</span></div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="yan">
+    <section class="blok kart" id="kart" aria-live="polite"></section>
+
+    <section class="blok">
+      <h2>BU GECE GÖRÜNENLER</h2>
+      <ul class="liste" id="liste"></ul>
+    </section>
+
+    <section class="blok">
+      <h2>YER VE TARİH</h2>
+      <div class="alanlar">
+        <div class="alan genis">
+          <label for="sehir">Şehir</label>
+          <select id="sehir"></select>
+        </div>
+        <div class="alan">
+          <label for="enlem">Enlem (°K)</label>
+          <input id="enlem" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="alan">
+          <label for="boylam">Boylam (°D)</label>
+          <input id="boylam" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="alan genis">
+          <label for="tarih">Gece</label>
+          <input id="tarih" type="date" min="1900-01-01" max="2100-12-31">
+        </div>
+      </div>
+      <p class="hata" id="hata" hidden></p>
+    </section>
+
+    <footer class="blok dip">
+      <p>Kolunu tam uzattığında yumruğun gökyüzünde yaklaşık 10°, serçe parmağın 1° kaplar. Yükseklikleri böyle ölçebilirsin.</p>
+      <p>Yıldızlar 5,3 kadire kadar; konumlar yaklaşık hesaptır (gezegenlerde birkaç yay dakikası). Saatler bu cihazın saat dilimine göredir. Yıldız ve takımyıldız verisi: d3-celestial (Olaf Frohn, BSD lisansı).</p>
+    </footer>
+  </aside>
+</div>
+
+<script>/*DATA*/</script>
+<script>
+(() => {
+"use strict";
+const SKY = window.SKY;
+const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+const norm = a => ((a % 360) + 360) % 360;
+const sind = a => Math.sin(a * D2R), cosd = a => Math.cos(a * D2R);
+const sayi = (x, k = 1) => x.toLocaleString("tr-TR", { minimumFractionDigits: k, maximumFractionDigits: k }).replace("-", "−");
+
+/* ---------- Gökyüzü mekaniği (P. Schlyter'in yörünge öğeleri) ---------- */
+const jd = date => date.getTime() / 86400000 + 2440587.5;
+const EL = { // N, dN, i, di, w, dw, a, da, e, de, M, dM
+  gunes:   [0,0, 0,0, 282.9404,4.70935e-5, 1,0, 0.016709,-1.151e-9, 356.0470,0.9856002585],
+  ay:      [125.1228,-0.0529538083, 5.1454,0, 318.0634,0.1643573223, 60.2666,0, 0.0549,0, 115.3654,13.0649929509],
+  merkur:  [48.3313,3.24587e-5, 7.0047,5e-8, 29.1241,1.01444e-5, 0.387098,0, 0.205635,5.59e-10, 168.6562,4.0923344368],
+  venus:   [76.6799,2.4659e-5, 3.3946,2.75e-8, 54.891,1.38374e-5, 0.72333,0, 0.006773,-1.302e-9, 48.0052,1.6021302244],
+  mars:    [49.5574,2.11081e-5, 1.8497,-1.78e-8, 286.5016,2.92961e-5, 1.523688,0, 0.093405,2.516e-9, 18.6021,0.5240207766],
+  jupiter: [100.4542,2.76854e-5, 1.303,-1.557e-7, 273.8777,1.64505e-5, 5.20256,0, 0.048498,4.469e-9, 19.895,0.0830853001],
+  saturn:  [113.6634,2.3898e-5, 2.4886,-1.081e-7, 339.3939,2.97661e-5, 9.55475,0, 0.055546,-9.499e-9, 316.967,0.0334442282],
+};
+function oge(k, d) { const t = EL[k]; return { N:t[0]+t[1]*d, i:t[2]+t[3]*d, w:t[4]+t[5]*d, a:t[6]+t[7]*d, e:t[8]+t[9]*d, M:norm(t[10]+t[11]*d) }; }
+function yorunge(o) {
+  const Mr = o.M * D2R; let E = Mr + o.e * Math.sin(Mr) * (1 + o.e * Math.cos(Mr));
+  for (let n = 0; n < 6; n++) E -= (E - o.e * Math.sin(E) - Mr) / (1 - o.e * Math.cos(E));
+  const xv = o.a * (Math.cos(E) - o.e), yv = o.a * Math.sqrt(1 - o.e * o.e) * Math.sin(E);
+  const v = Math.atan2(yv, xv) * R2D, r = Math.hypot(xv, yv), vw = v + o.w;
+  return { r, x: r * (cosd(o.N) * cosd(vw) - sind(o.N) * sind(vw) * cosd(o.i)),
+              y: r * (sind(o.N) * cosd(vw) + cosd(o.N) * sind(vw) * cosd(o.i)),
+              z: r * sind(vw) * sind(o.i) };
+}
+function ekvatoral(x, y, z, ecl) {
+  const ye = y * cosd(ecl) - z * sind(ecl), ze = y * sind(ecl) + z * cosd(ecl);
+  return { ra: norm(Math.atan2(ye, x) * R2D), dec: Math.atan2(ze, Math.hypot(x, ye)) * R2D };
+}
+const PARLAKLIK = {
+  merkur: (r, R, FV) => -0.36 + 5 * Math.log10(r * R) + 0.027 * FV + 2.2e-13 * FV ** 6,
+  venus:  (r, R, FV) => -4.34 + 5 * Math.log10(r * R) + 0.013 * FV + 4.2e-7 * FV ** 3,
+  mars:   (r, R, FV) => -1.51 + 5 * Math.log10(r * R) + 0.016 * FV,
+  jupiter:(r, R, FV) => -9.25 + 5 * Math.log10(r * R) + 0.014 * FV,
+  saturn: (r, R, FV) => -9.0 + 5 * Math.log10(r * R) + 0.044 * FV,
+};
+function gunesSistemi(date) {
+  const d = jd(date) - 2451543.5, ecl = 23.4393 - 3.563e-7 * d;
+  const go = oge("gunes", d), g = yorunge(go);
+  const sonuc = {};
+  const gl = norm(Math.atan2(g.y, g.x) * R2D);
+  sonuc.gunes = Object.assign(ekvatoral(g.x, g.y, 0, ecl), { mag: -26.7, uzak: g.r });
+  for (const k of ["merkur", "venus", "mars", "jupiter", "saturn"]) {
+    const p = yorunge(oge(k, d)), x = p.x + g.x, y = p.y + g.y, z = p.z, R = Math.hypot(x, y, z);
+    const FV = Math.acos(Math.max(-1, Math.min(1, (p.r * p.r + R * R - g.r * g.r) / (2 * p.r * R)))) * R2D;
+    sonuc[k] = Object.assign(ekvatoral(x, y, z, ecl), { mag: PARLAKLIK[k](p.r, R, FV), uzak: R });
+  }
+  // Ay ve başlıca bozulmaları
+  const mo = oge("ay", d), m = yorunge(mo);
+  let lon = Math.atan2(m.y, m.x) * R2D, lat = Math.atan2(m.z, Math.hypot(m.x, m.y)) * R2D, dist = m.r;
+  const Ms = go.M, Mm = mo.M, Ls = norm(go.M + go.w), Lm = norm(mo.M + mo.w + mo.N), D = Lm - Ls, F = Lm - mo.N;
+  lon += -1.274*sind(Mm-2*D) + 0.658*sind(2*D) - 0.186*sind(Ms) - 0.059*sind(2*Mm-2*D) - 0.057*sind(Mm-2*D+Ms)
+       + 0.053*sind(Mm+2*D) + 0.046*sind(2*D-Ms) + 0.041*sind(Mm-Ms) - 0.035*sind(D) - 0.031*sind(Mm+Ms)
+       - 0.015*sind(2*F-2*D) + 0.011*sind(Mm-4*D);
+  lat += -0.173*sind(F-2*D) - 0.055*sind(Mm-F-2*D) - 0.046*sind(Mm+F-2*D) + 0.033*sind(F+2*D) + 0.017*sind(2*Mm+F);
+  dist += -0.58*cosd(Mm-2*D) - 0.46*cosd(2*D);
+  const ax = cosd(lon) * cosd(lat), ay = sind(lon) * cosd(lat), az = sind(lat);
+  const uzanim = Math.acos(cosd(lon - gl) * cosd(lat)) * R2D;
+  sonuc.ay = Object.assign(ekvatoral(ax, ay, az, ecl), {
+    mag: -12, uzak: dist, isik: (1 - cosd(uzanim)) / 2, buyuyen: norm(lon - gl) < 180, uzanim });
+  return sonuc;
+}
+const yildizZamani = (date, boylam) => norm(280.46061837 + 360.98564736629 * (jd(date) - 2451545) + boylam);
+function yatay(ra, dec, lst, enlem) {
+  const H = lst - ra;
+  const alt = Math.asin(sind(dec) * sind(enlem) + cosd(dec) * cosd(enlem) * cosd(H)) * R2D;
+  const az = norm(Math.atan2(-cosd(dec) * sind(H), sind(dec) * cosd(enlem) - cosd(dec) * sind(enlem) * cosd(H)) * R2D);
+  return { alt, az };
+}
+
+/* ---------- İçerik ---------- */
+const YONLER = ["kuzey", "kuzeydoğu", "doğu", "güneydoğu", "güney", "güneybatı", "batı", "kuzeybatı"];
+const yon = az => YONLER[Math.round(norm(az) / 45) % 8];
+const GEZEGEN = {
+  gunes: { ad: "Güneş", tur: "Yıldız",
+    oyku: "Bize en yakın yıldız; ışığı Dünya'ya 8 dakika 20 saniyede ulaşır. Ona asla çıplak gözle, dürbünle ya da teleskopla doğrudan bakma; göze kalıcı zarar verir. Battıktan sonra gökyüzü yaklaşık bir buçuk saatte tamamen kararır." },
+  ay: { ad: "Ay", tur: "Uydu" },
+  merkur: { ad: "Merkür", tur: "Gezegen",
+    oyku: "Güneş'e en yakın gezegen; bir yılı yalnızca 88 gün sürer. Güneş'ten hiç uzaklaşmadığı için yalnızca alacakaranlıkta, ufka yakın bir yerde kısa süre görünür. Görebildiysen şanslısın." },
+  venus: { ad: "Venüs", halk: "Çoban Yıldızı", tur: "Gezegen",
+    oyku: "Halk arasında akşam göğündeyken Çoban Yıldızı, sabah göğündeyken Kervankıran diye bilinir. Kalın bulutları güneş ışığını çok iyi yansıttığı için Ay'dan sonra gece gökyüzünün en parlak cismidir. Yüzeyi 460 °C'yi aşar; Güneş'e daha yakın olan Merkür'den bile sıcaktır." },
+  mars: { ad: "Mars", tur: "Gezegen",
+    oyku: "Kızıl rengini yüzeyindeki demir oksitli tozdan alır. Yaklaşık 26 ayda bir Dünya'ya en çok yaklaşır ve o dönemlerde parlaklığı belirgin şekilde artar. Güneş Sistemi'nin en yüksek yanardağı Olympus Mons buradadır." },
+  jupiter: { ad: "Jüpiter", tur: "Gezegen",
+    oyku: "Güneş Sistemi'nin en büyük gezegeni. Sıradan bir dürbünü sabit tutarsan yanında dizilmiş dört minik nokta görürsün: Galileo'nun 1610'da keşfettiği dört büyük uydusu. Gece gece dizilişleri değişir." },
+  saturn: { ad: "Satürn", tur: "Gezegen",
+    oyku: "Halkaları küçük bir teleskopla bile görülür. Ortalama yoğunluğu sudan düşüktür; yeterince büyük bir havuz olsa yüzerdi. Sarımsı, titremeyen sakin ışığıyla yıldızlardan ayrılır." },
+};
+const YILDIZ_OYKU = {
+  Polaris: ["Demirkazık", "Kuzey gök kutbuna 1°'den yakın olduğu için bütün gece aynı yerde durur, diğer yıldızlar onun çevresinde döner. Göçebe Türkler gökyüzünün bu yıldıza çakılmış bir demir kazığa bağlı döndüğünü düşündü; adı buradan gelir. Ufuktan yüksekliği, bulunduğun yerin enlemine eşittir."],
+  Alcyone: ["Ülker", "Ülker kümesinin en parlak yıldızı. Küme yaklaşık 440 ışık yılı uzaklıkta, birlikte doğmuş genç yıldızlardan oluşur; çıplak gözle 6–7 tanesi seçilir. Anadolu halk takviminde Ülker'in görünüp kaybolması mevsim dönümlerinin işareti sayılırdı."],
+  Dubhe: ["Yedigen'in işaretçisi", "Büyük Ayı'nın yedi parlak yıldızına Türk dünyasında Yedigen ya da Yedi Kardeş denir. Kepçenin ucundaki Dubhe ile Merak'ı birleştirip yaklaşık beş katı uzatırsan Demirkazık'a varırsın."],
+  Merak: ["Yedigen'in işaretçisi", "Dubhe ile birlikte kepçenin ağzını oluşturur. Bu iki yıldızın çizdiği doğru, kuzeyi bulmanın en eski yoludur."],
+  Mizar: ["Yedigen", "Keskin gözlülerin yanında soluk Alcor'u da seçebildiği ünlü bir çift. Eskiden göz testi olarak kullanıldığı anlatılır."],
+  Sirius: [null, "Gece gökyüzünün en parlak yıldızı ve yalnızca 8,6 ışık yılı ötede. Ufka yakınken atmosfer yüzünden renkten renge girerek titreşir."],
+  Vega: [null, "25 ışık yılı uzaktaki beyaz yıldız, Yaz Üçgeni'nin köşelerinden biri. Dünya'nın ekseni yavaşça yalpaladığı için yaklaşık 12 bin yıl sonra kutup yıldızı olacak."],
+  Betelgeuse: [null, "Avcı'nın omzundaki kırmızı süperdev. Güneş'in yerinde olsaydı Mars'ın yörüngesini aşardı. 2019–2020'de belirgin şekilde sönükleşip gökbilimcileri heyecanlandırdı."],
+  Rigel: [null, "Avcı'nın ayağındaki mavi-beyaz süperdev; Güneş'ten on binlerce kat daha fazla ışık yayar ve yüzlerce ışık yılı ötededir."],
+  Aldebaran: [null, "Boğa'nın kızıl gözü. 65 ışık yılı uzaklıkta, şişip büyümüş turuncu bir dev yıldız. Ülker'in hemen güneydoğusunda bulursun."],
+  Capella: [null, "43 ışık yılı uzaklıkta, sarımsı ve parlak. Tek bir yıldız gibi görünse de aslında birbirine dolanan iki çift yıldızdan oluşur."],
+  Arcturus: [null, "Gökyüzünün kuzey yarısının en parlak yıldızı. 37 ışık yılı uzaklıkta, turuncu bir dev. Büyük Ayı kepçesinin sapını kavis boyunca uzatırsan onu bulursun."],
+  Altair: [null, "17 ışık yılı uzaklıkta. Kendi çevresinde o kadar hızlı döner ki ekvatoru şişmiş, yassı bir topa benzer. Yaz Üçgeni'nin güney köşesidir."],
+  Deneb: [null, "Kuğu'nun kuyruğu ve Yaz Üçgeni'nin üçüncü köşesi. Çok uzakta olduğu halde bu kadar parlak görünmesi, onu bilinen en güçlü yıldızlardan biri yapar."],
+  Antares: [null, "Akrep'in kızıl kalbi. Adı 'Mars'ın rakibi' anlamına gelir; ikisi yan yana geldiğinde renkleri karıştırılabilir."],
+  Spica: [null, "Başak'ın en parlak yıldızı; yaklaşık 250 ışık yılı uzakta, birbirine çok yakın dönen iki sıcak yıldızdan oluşur."],
+  Regulus: [null, "Aslan'ın kalbi. Ekliptiğe çok yakın durduğu için Ay ve gezegenler sık sık yanından geçer."],
+  Procyon: [null, "11,5 ışık yılı uzaklığıyla en yakın komşularımızdan. Sirius ve Betelgeuse ile birlikte Kış Üçgeni'ni oluşturur."],
+  Algol: [null, "Yaklaşık 2 gün 21 saatte bir birkaç saatliğine sönükleşir, çünkü yörüngesindeki eşi önünden geçer. Bu tuhaflığı yüzünden eski kaynaklarda 'şeytan yıldızı' diye anılır."],
+  Albireo: [null, "Çıplak gözle tek, küçük bir teleskopla altın sarısı ve mavi iki yıldız. Gökyüzünün en güzel renk karşıtlığı sayılır."],
+  Fomalhaut: [null, "Sonbahar akşamları güney ufkunda yalnız başına parlayan yıldız. 25 ışık yılı uzakta, çevresinde toz halkası var."],
+  Castor: [null, "İkizler'in başlarından biri. Teleskopla bakıldığında aslında altı yıldızlı bir sistem olduğu ortaya çıkar."],
+  Pollux: [null, "İkizler'in daha parlak olanı; 34 ışık yılı uzaklıktaki turuncu dev yıldızın çevresinde bir gezegen keşfedildi."],
+};
+const TAKIM_OYKU = {
+  Ori: "Kış gecelerinin en kolay tanınan takımyıldızı. Ortadaki yan yana üç yıldız Avcı'nın kemeridir; kemerin altındaki bulanık leke, çıplak gözle görülebilen Orion Bulutsusu'dur.",
+  UMa: "Yedi parlak yıldızı bir kepçe çizer; Türk dünyasında Yedigen ya da Yedi Kardeş adıyla bilinir. Bütün yıl boyunca kuzey göğünde döner, Kütahya'dan hiç batmaz.",
+  UMi: "Kuyruğunun ucundaki yıldız Demirkazık'tır. Soluk bir takımyıldız; şehir ışıklarından uzakta seçilir.",
+  Cas: "Kuzey göğünde W ya da M harfi gibi duran beş yıldız. Büyük Ayı'nın Demirkazık'a göre tam karşısında bulunur; biri alçaldığında öteki yükselir.",
+  Tau: "Kızıl Aldebaran Boğa'nın gözü, V biçimli Hyades kümesi yüzü, Ülker de omzudur.",
+  Sco: "Yaz akşamları güney ufkunda kıvrılan Akrep. Kalbinde kızıl Antares parlar.",
+  Cyg: "Samanyolu boyunca uçan bir kuğu; Kuzey Haçı diye de bilinir. Deneb kuyruğunda, Albireo gagasındadır.",
+  Leo: "Ters dönmüş bir soru işareti biçimindeki yeleyi bul; altındaki parlak yıldız Regulus'tur. Bahar göğünün işaretidir.",
+  Gem: "Yan yana iki parlak yıldız, Castor ve Pollux, ikizlerin başlarıdır. Aralık ortasındaki İkizler meteor yağmuru buradan saçılır gibi görünür.",
+  Per: "Algol'un bulunduğu takımyıldız. Ağustos'taki Perseid meteor yağmuru buradan saçılır gibi görünür.",
+  Lyr: "Küçük ama parlak: Vega ile yanındaki küçük paralelkenar bir lir çalgısı çizer.",
+  Aql: "Altair ve iki yanındaki daha sönük yıldız, kanatlarını açmış bir kartalın gövdesi gibi sıralanır.",
+  Peg: "Sonbaharın Büyük Karesi; dört yıldız neredeyse kusursuz bir kare çizer.",
+  And: "Kanatlıat'ın karesinin bir köşesinden uzanır. Karanlık bir gecede çıplak gözle görülebilen en uzak cisim, 2,5 milyon ışık yılı ötedeki Andromeda Gökadası buradadır.",
+  CMa: "Sirius'un takımyıldızı; Avcı'nın kemerini sola doğru uzatırsan ona varırsın.",
+  Sgr: "Bir çaydanlık biçimi; Samanyolu'nun merkezi, buharın yükseldiği yerin hemen ardındadır.",
+  Aur: "Capella'nın beşgeni. Kış gecelerinde başucuna yakın yükselir.",
+  Boo: "Arcturus'un uçurtması. Büyük Ayı kepçesinin sapının devamındadır.",
+};
+
+/* ---------- Durum ---------- */
+// 81 il merkezi (enlem °K, boylam °D)
+const SEHIRLER = [
+  ["Adana", 37.00, 35.32], ["Adıyaman", 37.76, 38.28], ["Afyonkarahisar", 38.76, 30.54], ["Ağrı", 39.72, 43.05],
+  ["Aksaray", 38.37, 34.03], ["Amasya", 40.65, 35.83], ["Ankara", 39.93, 32.86], ["Antalya", 36.90, 30.70],
+  ["Ardahan", 41.11, 42.70], ["Artvin", 41.18, 41.82], ["Aydın", 37.85, 27.85], ["Balıkesir", 39.65, 27.88],
+  ["Bartın", 41.64, 32.34], ["Batman", 37.89, 41.13], ["Bayburt", 40.26, 40.23], ["Bilecik", 40.14, 29.98],
+  ["Bingöl", 38.88, 40.50], ["Bitlis", 38.40, 42.11], ["Bolu", 40.74, 31.61], ["Burdur", 37.72, 30.29],
+  ["Bursa", 40.19, 29.06], ["Çanakkale", 40.15, 26.41], ["Çankırı", 40.60, 33.62], ["Çorum", 40.55, 34.95],
+  ["Denizli", 37.78, 29.09], ["Diyarbakır", 37.91, 40.24], ["Düzce", 40.84, 31.16], ["Edirne", 41.68, 26.56],
+  ["Elazığ", 38.67, 39.22], ["Erzincan", 39.75, 39.49], ["Erzurum", 39.90, 41.27], ["Eskişehir", 39.78, 30.52],
+  ["Gaziantep", 37.07, 37.38], ["Giresun", 40.91, 38.39], ["Gümüşhane", 40.46, 39.48], ["Hakkari", 37.58, 43.74],
+  ["Hatay", 36.20, 36.16], ["Iğdır", 39.92, 44.04], ["Isparta", 37.76, 30.55], ["İstanbul", 41.01, 28.98],
+  ["İzmir", 38.42, 27.14], ["Kahramanmaraş", 37.58, 36.94], ["Karabük", 41.20, 32.62], ["Karaman", 37.18, 33.22],
+  ["Kars", 40.60, 43.10], ["Kastamonu", 41.38, 33.78], ["Kayseri", 38.73, 35.48], ["Kırıkkale", 39.85, 33.51],
+  ["Kırklareli", 41.73, 27.22], ["Kırşehir", 39.15, 34.17], ["Kilis", 36.72, 37.12], ["Kocaeli", 40.77, 29.92],
+  ["Konya", 37.87, 32.48], ["Kütahya", 39.42, 29.98], ["Malatya", 38.35, 38.31], ["Manisa", 38.61, 27.43],
+  ["Mardin", 37.31, 40.74], ["Mersin", 36.81, 34.64], ["Muğla", 37.22, 28.36], ["Muş", 38.75, 41.49],
+  ["Nevşehir", 38.62, 34.71], ["Niğde", 37.97, 34.68], ["Ordu", 40.98, 37.88], ["Osmaniye", 37.07, 36.25],
+  ["Rize", 41.02, 40.52], ["Sakarya", 40.78, 30.40], ["Samsun", 41.29, 36.33], ["Siirt", 37.93, 41.94],
+  ["Sinop", 42.03, 35.15], ["Sivas", 39.75, 37.02], ["Şanlıurfa", 37.17, 38.79], ["Şırnak", 37.52, 42.46],
+  ["Tekirdağ", 40.98, 27.51], ["Tokat", 40.31, 36.55], ["Trabzon", 41.00, 39.72], ["Tunceli", 39.11, 39.55],
+  ["Uşak", 38.68, 29.41], ["Van", 38.50, 43.38], ["Yalova", 40.66, 29.27], ["Yozgat", 39.82, 34.81],
+  ["Zonguldak", 41.45, 31.79],
+].sort((a, b) => a[0].localeCompare(b[0], "tr"));
+const oku = k => { try { return localStorage.getItem(k); } catch { return null; } };
+const yaz = (k, v) => { try { localStorage.setItem(k, v); } catch { /* özel pencere */ } };
+const kayitli = (() => { try { return JSON.parse(oku("usturlap-yer") || "null"); } catch { return null; } })();
+const durum = {
+  yer: kayitli && typeof kayitli.enlem === "number" ? kayitli : { ad: "Kütahya", enlem: 39.42, boylam: 29.98 },
+  temel: null, dakika: 0, simdi: true,
+  cizgi: true, adlar: true, samanyolu: true, gece: false,
+  secili: null, gece_ornek: null, nesneler: [],
+};
+const $ = id => document.getElementById(id);
+
+function geceBaslangici(t) { // geceyi öğleden öğleye say
+  const b = new Date(t); b.setHours(12, 0, 0, 0);
+  if (t.getHours() < 12) b.setDate(b.getDate() - 1);
+  return b;
+}
+const anAl = () => new Date(durum.temel.getTime() + durum.dakika * 60000);
+const saatYaz = t => t.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+function simdiyeDon() {
+  const t = new Date();
+  durum.temel = geceBaslangici(t);
+  durum.dakika = Math.round((t - durum.temel) / 60000);
+  durum.simdi = true;
+}
+
+/* ---------- O anki konumlar ---------- */
+function venusHalk(p) { return norm(p.venus.ra - p.gunes.ra) < 180 ? "Çoban Yıldızı" : "Kervankıran"; }
+function konumlar(t) {
+  const lst = yildizZamani(t, durum.yer.boylam), en = durum.yer.enlem, gs = gunesSistemi(t);
+  const out = {};
+  for (const k of ["gunes", "ay", "merkur", "venus", "mars", "jupiter", "saturn"]) {
+    const o = gs[k], h = yatay(o.ra, o.dec, lst, en);
+    if (k === "ay") h.alt -= Math.asin(1 / o.uzak) * R2D * cosd(h.alt); // paralaks
+    out[k] = Object.assign({}, o, h);
+  }
+  out.lst = lst;
+  return out;
+}
+const yildizBul = ad => { for (const [id, v] of Object.entries(SKY.named)) if (v[0] === ad) return { id, v }; return null; };
+
+/* Gece boyunca örnekleme: doğuş, batış, en iyi saat */
+const ADAYLAR = ["ay", "venus", "jupiter", "mars", "saturn", "merkur"];
+const ONE_CIKAN_YILDIZ = ["Sirius", "Arcturus", "Vega", "Capella", "Rigel", "Procyon", "Betelgeuse", "Altair", "Aldebaran", "Antares", "Spica", "Deneb", "Regulus", "Pollux", "Fomalhaut", "Polaris", "Alcyone"];
+function geceyiOrnekle() {
+  const n = 289, ornek = { gunes: [], zaman: [] };
+  const yildizlar = ONE_CIKAN_YILDIZ.map(yildizBul).filter(Boolean);
+  for (const k of ADAYLAR) ornek[k] = [];
+  for (const y of yildizlar) ornek["y:" + y.v[0]] = [];
+  for (let i = 0; i < n; i++) {
+    const t = new Date(durum.temel.getTime() + i * 5 * 60000);
+    const p = konumlar(t);
+    ornek.zaman.push(t); ornek.gunes.push(p.gunes.alt);
+    for (const k of ADAYLAR) ornek[k].push(p[k].alt);
+    for (const y of yildizlar) ornek["y:" + y.v[0]].push(yatay(y.v[2], y.v[3], p.lst, durum.yer.enlem).alt);
+  }
+  durum.gece_ornek = ornek;
+}
+function ozet(anahtar) {
+  const o = durum.gece_ornek, a = o[anahtar]; if (!a) return null;
+  let enIyi = -1, enIyiAlt = -99, dogus = null, batis = null;
+  for (let i = 0; i < a.length; i++) {
+    if (o.gunes[i] < -8 && a[i] > enIyiAlt) { enIyiAlt = a[i]; enIyi = i; }
+    if (i > 0) {
+      const f = a[i - 1] / (a[i - 1] - a[i]);
+      const tm = new Date(o.zaman[i - 1].getTime() + f * 5 * 60000);
+      if (a[i - 1] < 0 && a[i] >= 0 && !dogus) dogus = tm;
+      if (a[i - 1] >= 0 && a[i] < 0 && !batis) batis = tm;
+    }
+  }
+  return { enIyi: enIyi >= 0 && enIyiAlt > 5 ? enIyi : -1, enIyiAlt, dogus, batis, hepUstte: a.every(x => x > 0) };
+}
+
+/* ---------- Çizim ---------- */
+const tuval = $("kubbe"), ctx = tuval.getContext("2d");
+let olcek = { w: 0, cx: 0, cy: 0, R: 0, dpr: 1 };
+let renk = {};
+function renkleriOku() {
+  const cs = getComputedStyle(document.documentElement), g = k => cs.getPropertyValue(k).trim();
+  renk = { kubbe: g("--kubbe"), ufuk: g("--kubbe-ufuk"), yildiz: g("--yildiz"), takim: g("--takim"), etiket: g("--etiket"),
+    sy: g("--samanyolu"), gezegen: g("--gezegen"), pirinc: g("--pirinc"), murekkep: g("--murekkep"), soluk: g("--soluk"),
+    cizgi: g("--cizgi"), zemin: g("--zemin"), renkli: g("--renkli") === "1",
+    gun: g("--gun"), alaca: g("--alaca"), gece: g("--gece"), karanlik: g("--karanlik") };
+}
+function boyutla() {
+  const kutu = $("kubbe-kutu").getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  const w = Math.max(220, Math.floor(Math.min(kutu.width, kutu.height || kutu.width)));
+  tuval.style.width = w + "px"; tuval.style.height = w + "px";
+  tuval.width = w * dpr; tuval.height = w * dpr;
+  const kenar = Math.max(32, w * 0.062); // derece halkası + yön harfleri için pay
+  olcek = { w, dpr, cx: w / 2, cy: w / 2, R: w / 2 - kenar };
+}
+function yansit(alt, az) { // stereografik, başucu merkezde; üst kuzey, sol doğu
+  const rho = olcek.R * Math.tan((90 - alt) * D2R / 2);
+  return [olcek.cx - rho * sind(az), olcek.cy - rho * cosd(az), rho];
+}
+function bvRenk(bv) {
+  if (!renk.renkli) return renk.yildiz;
+  if (bv < 0) return "#cfe0ff"; if (bv < 0.3) return "#eef3ff"; if (bv < 0.6) return "#fff8ec";
+  if (bv < 1.0) return "#ffe6bf"; if (bv < 1.4) return "#ffd09a"; return "#ffb27a";
+}
+const yaricap = mag => Math.max(0.55, 3.4 - 0.62 * mag) * (olcek.w / 700) ** 0.5;
+
+function ciz() {
+  const { w, dpr, cx, cy, R } = olcek, t = anAl(), p = konumlar(t), lst = p.lst, en = durum.yer.enlem;
+  const s = Math.max(0.8, w / 700);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, w);
+  durum.nesneler = [];
+
+  // Gök zemini: alacakaranlıkta aydınlanır
+  const gAlt = p.gunes.alt;
+  const kub = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  kub.addColorStop(0, renk.kubbe); kub.addColorStop(1, renk.ufuk);
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = kub; ctx.fill();
+  const aydinlik = gAlt > 0 ? 1 : gAlt > -18 ? (gAlt + 18) / 18 : 0;
+  if (aydinlik > 0) { ctx.globalAlpha = aydinlik * 0.85; ctx.fillStyle = renk.gun; ctx.fill(); ctx.globalAlpha = 1; }
+
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+  const sonukluk = gAlt > -4 ? 0.25 : gAlt > -12 ? 0.6 : 1; // gün ışığında yıldızlar soluklaşır
+
+  // Samanyolu
+  if (durum.samanyolu) {
+    ctx.fillStyle = renk.sy;
+    for (const [, halka] of SKY.mw) {
+      ctx.beginPath();
+      halka.forEach(([ra, de], i) => {
+        const h = yatay(ra, de, lst, en); let [x, y, rho] = yansit(h.alt, h.az);
+        if (rho > R * 3) { x = cx + (x - cx) * R * 3 / rho; y = cy + (y - cy) * R * 3 / rho; }
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      });
+      ctx.closePath(); ctx.globalAlpha = sonukluk; ctx.fill(); ctx.globalAlpha = 1;
+    }
+  }
+
+  // Alt-irtifa halkaları (30°, 60°) — usturlabın almukantarları
+  ctx.strokeStyle = renk.cizgi; ctx.lineWidth = 1; ctx.setLineDash([2, 5]);
+  for (const a of [30, 60]) { ctx.beginPath(); ctx.arc(cx, cy, yansit(a, 0)[2], 0, Math.PI * 2); ctx.stroke(); }
+  ctx.setLineDash([]);
+
+  // Takımyıldız çizgileri
+  const takimMerkez = [];
+  if (durum.cizgi) {
+    ctx.strokeStyle = renk.takim; ctx.lineWidth = 1 * s; ctx.globalAlpha = 0.85 * sonukluk;
+    for (const [kod, c] of Object.entries(SKY.cons)) {
+      if (!c.l) continue;
+      for (const hat of c.l) {
+        ctx.beginPath(); let onceki = false;
+        for (const [ra, de] of hat) {
+          const h = yatay(ra, de, lst, en);
+          if (h.alt < -8) { onceki = false; continue; }
+          const [x, y] = yansit(h.alt, h.az);
+          onceki ? ctx.lineTo(x, y) : ctx.moveTo(x, y); onceki = true;
+        }
+        ctx.stroke();
+      }
+      const hm = yatay(c.c[0], c.c[1], lst, en);
+      if (hm.alt > 8) { const [x, y] = yansit(hm.alt, hm.az); takimMerkez.push({ kod, c, x, y, alt: hm.alt, az: hm.az }); }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Yıldızlar
+  for (const st of SKY.stars) {
+    const [ra, de, mag, bv] = st;
+    if (mag > 5.3 - (1 - sonukluk) * 4) continue;
+    const h = yatay(ra, de, lst, en); if (h.alt < 0) continue;
+    const [x, y] = yansit(h.alt, h.az), r = yaricap(mag);
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = bvRenk(bv); ctx.globalAlpha = mag > 4 ? 0.75 : 1; ctx.fill(); ctx.globalAlpha = 1;
+  }
+
+  // Adlı yıldızlar: tıklama hedefleri
+  const etiketler = [];
+  for (const [id, v] of Object.entries(SKY.named)) {
+    const h = yatay(v[2], v[3], lst, en); if (h.alt < 0) continue;
+    const [x, y] = yansit(h.alt, h.az);
+    const oyku = YILDIZ_OYKU[v[0]];
+    const ad = oyku && oyku[0] && v[0] !== "Dubhe" && v[0] !== "Merak" && v[0] !== "Mizar" ? oyku[0] : v[0];
+    durum.nesneler.push({ tip: "yildiz", anahtar: "y:" + v[0], x, y, oncelik: 2 + v[4], alt: h.alt, az: h.az });
+    if (durum.adlar && (v[4] < 1.3 || (oyku && oyku[0] && ad !== v[0]))) etiketler.push({ x, y, metin: ad, ozel: ad !== v[0], mag: v[4] });
+  }
+
+  // Gezegenler, Ay, Güneş
+  for (const k of ["saturn", "jupiter", "mars", "venus", "merkur"]) {
+    const o = p[k]; if (o.alt < 0) continue;
+    const [x, y] = yansit(o.alt, o.az), r = Math.max(2.6, 4.2 - 0.45 * o.mag) * s;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = renk.gezegen; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, r + 3 * s, 0, Math.PI * 2); ctx.strokeStyle = renk.gezegen; ctx.lineWidth = 1; ctx.stroke();
+    durum.nesneler.push({ tip: "gezegen", anahtar: k, x, y, oncelik: -10, alt: o.alt, az: o.az });
+    if (durum.adlar) etiketler.unshift({ x, y, metin: GEZEGEN[k].ad, gezegen: true, r: r + 3 * s });
+  }
+  if (p.ay.alt > -1) {
+    const [x, y] = yansit(p.ay.alt, p.ay.az), r = 9 * s;
+    const [gx, gy] = yansit(Math.max(p.gunes.alt, -89), p.gunes.az);
+    ayCiz(x, y, r, Math.atan2(gy - y, gx - x), p.ay.isik);
+    durum.nesneler.push({ tip: "ay", anahtar: "ay", x, y, oncelik: -20, alt: p.ay.alt, az: p.ay.az });
+    if (durum.adlar) etiketler.unshift({ x, y, metin: "Ay", gezegen: true, r: r + 2 });
+  }
+  if (p.gunes.alt > -0.5) {
+    const [x, y] = yansit(p.gunes.alt, p.gunes.az);
+    ctx.beginPath(); ctx.arc(x, y, 11 * s, 0, Math.PI * 2); ctx.fillStyle = renk.pirinc; ctx.fill();
+    etiketler.unshift({ x, y, metin: "Güneş", gezegen: true, r: 13 * s });
+    durum.nesneler.push({ tip: "gunes", anahtar: "gunes", x, y, oncelik: -15, alt: p.gunes.alt, az: p.gunes.az });
+  }
+
+  // Etiketler: çakışanı atla
+  const kutular = [];
+  const koy = (x, y, w2, h2) => { for (const b of kutular) if (x < b[0] + b[2] && x + w2 > b[0] && y < b[1] + b[3] && y + h2 > b[1]) return false; kutular.push([x, y, w2, h2]); return true; };
+  const oncelikli = etiketler.filter(e => e.gezegen), digerleri = etiketler.filter(e => !e.gezegen);
+  etiketBas(oncelikli, koy, s, cx, R, sonukluk);
+  if (durum.adlar && durum.cizgi) {
+    ctx.font = `500 italic ${Math.round(13 * s)}px "Cormorant Garamond", Georgia, serif`;
+    ctx.fillStyle = renk.takim; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (const m of takimMerkez) {
+      if (m.c.r > 2 && !TAKIM_OYKU[m.kod]) continue;
+      const tw = ctx.measureText(m.c.tr).width;
+      if (koy(m.x - tw / 2, m.y - 8, tw, 16)) { ctx.globalAlpha = sonukluk; ctx.fillText(m.c.tr, m.x, m.y); ctx.globalAlpha = 1; }
+    }
+  }
+  etiketBas(digerleri, koy, s, cx, R, sonukluk);
+  const sec = isaretciCiz(lst, en);
+  ctx.restore();
+  halkaCiz(sec);
+}
+function etiketBas(liste, koy, s, cx, R, sonukluk) {
+  ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  for (const e of liste) {
+    const boy = e.gezegen ? 13 : e.ozel ? 15 : 12;
+    ctx.font = e.gezegen ? `700 ${Math.round(boy * s)}px Manrope, system-ui, sans-serif`
+      : e.ozel ? `600 italic ${Math.round(boy * s)}px "Cormorant Garamond", Georgia, serif`
+      : `500 ${Math.round(boy * s)}px Manrope, system-ui, sans-serif`;
+    const tw = ctx.measureText(e.metin).width, dx = (e.r || 4) + 4, lx = e.x + dx, ly = e.y;
+    if (lx + tw > cx + R - 2 && !e.gezegen) continue;
+    if (!koy(lx, ly - 8 * s, tw, 16 * s)) continue;
+    ctx.fillStyle = e.gezegen ? renk.gezegen : e.ozel ? renk.pirinc : renk.etiket;
+    ctx.globalAlpha = e.gezegen ? 1 : sonukluk;
+    ctx.fillText(e.metin, lx, ly); ctx.globalAlpha = 1;
+  }
+}
+function isaretciCiz(lst, en) {
+  // usturlap retesindeki yıldız iğnesi gibi kenara uzanır
+  const sec = durum.nesneler.find(n => n.anahtar === durum.secili) || takimSecimi(lst, en);
+  if (sec && sec.alt > -1) {
+    const [rx, ry] = yansit(0, sec.az);
+    ctx.strokeStyle = renk.pirinc; ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(sec.x, sec.y); ctx.lineTo(rx, ry); ctx.stroke(); ctx.setLineDash([]);
+    ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sec.x, sec.y, 14 * Math.max(0.8, olcek.w / 700), 0, Math.PI * 2); ctx.stroke();
+  }
+  return sec;
+}
+function takimSecimi(lst, en) {
+  if (!durum.secili || !durum.secili.startsWith("t:")) return null;
+  const c = SKY.cons[durum.secili.slice(2)]; if (!c) return null;
+  const h = yatay(c.c[0], c.c[1], lst, en); const [x, y] = yansit(h.alt, h.az);
+  return { x, y, alt: h.alt, az: h.az };
+}
+function ayCiz(x, y, r, aci, isik) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(aci);
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fillStyle = renk.cizgi; ctx.fill();
+  ctx.fillStyle = renk.renkli ? "#f3efe2" : renk.gezegen;
+  ctx.beginPath(); ctx.arc(0, 0, r, -Math.PI / 2, Math.PI / 2); // Güneş'e bakan yarı
+  const k = Math.abs(1 - 2 * isik) * r;
+  ctx.ellipse(0, 0, k, r, 0, Math.PI / 2, -Math.PI / 2, isik < 0.5);
+  ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.strokeStyle = renk.soluk; ctx.lineWidth = 0.75; ctx.stroke();
+  ctx.restore();
+}
+function halkaCiz(sec) {
+  const { cx, cy, R, w } = olcek, s = Math.max(0.8, w / 700), bant = Math.max(10, R * 0.04);
+  ctx.strokeStyle = renk.pirinc; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, R + bant, 0, Math.PI * 2); ctx.stroke();
+  for (let a = 0; a < 360; a += 5) {
+    const uz = a % 45 === 0 ? bant : a % 15 === 0 ? bant * 0.6 : bant * 0.3;
+    const x1 = cx - R * sind(a), y1 = cy - R * cosd(a), x2 = cx - (R + uz) * sind(a), y2 = cy - (R + uz) * cosd(a);
+    ctx.lineWidth = a % 45 === 0 ? 1.5 : 1; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+  const kisa = ["K", "KD", "D", "GD", "G", "GB", "B", "KB"];
+  ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = renk.pirinc;
+  kisa.forEach((h, i) => {
+    const a = i * 45, rr = R + bant + Math.max(10, 12 * Math.min(s, 1.3));
+    ctx.font = `${i % 2 ? 600 : 700} ${Math.round((i % 2 ? 11 : 15) * Math.min(s, 1.3))}px Manrope, system-ui, sans-serif`;
+    ctx.fillText(h, cx - rr * sind(a), cy - rr * cosd(a));
+  });
+  if (sec && sec.alt > -1) {
+    const a = sec.az, x = cx - (R + bant / 2) * sind(a), y = cy - (R + bant / 2) * cosd(a);
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+/* ---------- Arayüz ---------- */
+function seridiBoya() {
+  const o = durum.gece_ornek, stops = [];
+  const r = a => a > 0 ? "var(--gun)" : a > -6 ? "var(--alaca)" : a > -18 ? "var(--gece)" : "var(--karanlik)";
+  let onceki = null;
+  o.gunes.forEach((a, i) => {
+    const c = r(a), yuzde = (i / (o.gunes.length - 1) * 100).toFixed(2);
+    if (c !== onceki) { if (onceki) stops.push(`${onceki} ${yuzde}%`); stops.push(`${c} ${yuzde}%`); onceki = c; }
+  });
+  stops.push(`${onceki} 100%`);
+  $("serit").style.background = `linear-gradient(90deg, ${stops.join(", ")})`;
+}
+
+function bilgi(anahtar) {
+  const t = anAl(), p = konumlar(t);
+  if (anahtar in GEZEGEN || anahtar === "ay") {
+    const o = p[anahtar], g = GEZEGEN[anahtar];
+    let tur = `${g.tur} · parlaklık ${sayi(o.mag)} kadir`, oyku = g.oyku, halk = anahtar === "venus" ? venusHalk(p) : null;
+    if (anahtar === "ay") {
+      const yuzde = Math.round(o.isik * 100);
+      const evre = yuzde > 97 ? "Dolunay" : yuzde < 3 ? "Yeni ay" : o.isik > 0.45 && o.isik < 0.55 ? (o.buyuyen ? "İlk dördün" : "Son dördün")
+        : o.buyuyen ? (o.isik < 0.5 ? "Büyüyen hilal" : "Büyüyen şişkin ay") : (o.isik < 0.5 ? "Küçülen hilal" : "Küçülen şişkin ay");
+      tur = `${evre} · %${yuzde} aydınlık · ${Math.round(o.uzak * 6378).toLocaleString("tr-TR")} km`;
+      oyku = o.buyuyen
+        ? "Ay şu an büyüyor; her akşam yıldızların arasında biraz daha doğuya kayar ve daha geç batar. Hilal evresinde karanlık kısmı da soluk biçimde görebilirsin: o ışık, Dünya'dan Ay'a yansıyan güneş ışığıdır."
+        : "Ay küçülüyor; her gece yaklaşık 50 dakika daha geç doğar ve sabaha doğru gökte kalır. Ay'ın olmadığı ilk saatler sönük yıldızlara bakmak için en iyi zamandır.";
+    }
+    return { baslik: halk || g.ad, alt: halk ? `${g.ad} · ${tur}` : tur, oyku, alt_: o.alt, az: o.az, ozet: ozet(anahtar) };
+  }
+  if (anahtar.startsWith("y:")) {
+    const ad = anahtar.slice(2), y = yildizBul(ad); if (!y) return null;
+    const [, c, ra, dec, mag] = y.v, h = yatay(ra, dec, p.lst, durum.yer.enlem), cons = SKY.cons[c];
+    const o = YILDIZ_OYKU[ad], halk = o && o[0] && !["Dubhe", "Merak", "Mizar"].includes(ad) ? o[0] : null;
+    const takimAd = cons ? cons.tr : c;
+    return { baslik: halk || ad, alt: `${halk ? ad + " · " : ""}${takimAd} takımyıldızında yıldız · ${sayi(mag)} kadir`,
+      oyku: o ? o[1] : `${takimAd} takımyıldızının parlak yıldızlarından biri.`, alt_: h.alt, az: h.az, ozet: ozet(anahtar) };
+  }
+  if (anahtar.startsWith("t:")) {
+    const kod = anahtar.slice(2), c = SKY.cons[kod]; if (!c) return null;
+    const h = yatay(c.c[0], c.c[1], p.lst, durum.yer.enlem);
+    let enParlak = null;
+    for (const v of Object.values(SKY.named)) if (v[1] === kod && (!enParlak || v[4] < enParlak[4])) enParlak = v;
+    return { baslik: c.tr, alt: `Takımyıldız · Latince adı ${c.la}`,
+      oyku: TAKIM_OYKU[kod] || (enParlak ? `En parlak yıldızı ${enParlak[0]} (${sayi(enParlak[4])} kadir).` : "Sönük yıldızlardan oluşan bir takımyıldız; karanlık bir yerden daha kolay seçilir."),
+      alt_: h.alt, az: h.az, ozet: null };
+  }
+  return null;
+}
+function kartYaz() {
+  const k = $("kart"), b = durum.secili && bilgi(durum.secili);
+  secimYaz(b);
+  if (!b) {
+    k.innerHTML = `<h3>Bir yıldıza dokun</h3><p class="oyku">Haritada bir yıldız, gezegen ya da takımyıldız adına dokunursan burada ne olduğunu, nereye bakman gerektiğini ve hikâyesini görürsün.</p>`;
+    return;
+  }
+  const yumruk = Math.round(b.alt_ / 10);
+  const konum = b.alt_ > 0
+    ? `${yon(b.az).replace(/^./, c => c.toLocaleUpperCase("tr-TR"))} yönünde · ufkun ${Math.round(b.alt_)}° üstünde${yumruk >= 1 ? ` (≈ ${yumruk} yumruk)` : ""}`
+    : `Şu an ufkun altında (${yon(b.az)})`;
+  const satirlar = [];
+  const oz = b.ozet;
+  if (oz) {
+    if (oz.hepUstte) satirlar.push("Bu gece hiç batmıyor.");
+    else {
+      const olaylar = [];
+      if (oz.dogus) olaylar.push([oz.dogus, "doğuş"]);
+      if (oz.batis) olaylar.push([oz.batis, "batış"]);
+      olaylar.sort((a, b) => a[0] - b[0]).forEach(([zm, ad]) => satirlar.push(`${ad} ${saatYaz(zm)}`));
+    }
+    if (oz.enIyi >= 0) satirlar.push(`en iyi saat ${saatYaz(durum.gece_ornek.zaman[oz.enIyi])} (${Math.round(oz.enIyiAlt)}°)`);
+  }
+  k.innerHTML = "";
+  const h3 = document.createElement("h3"); h3.textContent = b.baslik;
+  const tur = document.createElement("p"); tur.className = "tur"; tur.textContent = b.alt;
+  const kn = document.createElement("p"); kn.className = "konum"; kn.textContent = konum;
+  const oy = document.createElement("p"); oy.className = "oyku"; oy.textContent = b.oyku;
+  k.append(h3, tur, kn);
+  if (satirlar.length) { const s = document.createElement("p"); s.className = "olcu"; s.textContent = satirlar.join(" · ").replace(/^./, c => c.toLocaleUpperCase("tr-TR")); k.append(s); }
+  k.append(oy);
+  if (oz && oz.enIyi >= 0 && Math.abs(durum.dakika - oz.enIyi * 5) > 5) {
+    const d = document.createElement("button"); d.className = "dugme ikincil"; d.textContent = "En iyi saate git";
+    d.addEventListener("click", () => { durum.dakika = oz.enIyi * 5; durum.simdi = false; durum.gunduzAcilis = false; guncelle(false); });
+    k.append(d);
+  }
+}
+function secimYaz(b) {
+  $("secim").hidden = !b;
+  if (!b) return;
+  $("secim-ad").textContent = b.baslik;
+  $("secim-yer").textContent = b.alt_ > 0 ? `${yon(b.az)} · ufkun ${Math.round(b.alt_)}° üstünde` : `şu an ufkun altında (${yon(b.az)})`;
+}
+function listeYaz() {
+  const ul = $("liste"), t = anAl(), p = konumlar(t), ogeler = [];
+  for (const k of ADAYLAR) {
+    const oz = ozet(k); if (!oz || oz.enIyi < 0) continue;
+    ogeler.push({ anahtar: k, ad: k === "venus" ? venusHalk(p) : GEZEGEN[k].ad, alt: k === "ay" ? "Uydu" : k === "venus" ? "Venüs · gezegen" : "Gezegen", h: p[k], mag: p[k].mag, gezegen: true, oz });
+  }
+  ogeler.sort((a, b) => a.mag - b.mag);
+  const yildizlar = [];
+  for (const ad of ONE_CIKAN_YILDIZ) {
+    const y = yildizBul(ad); if (!y) continue;
+    const oz = ozet("y:" + ad); if (!oz || oz.enIyi < 0) continue;
+    const h = yatay(y.v[2], y.v[3], p.lst, durum.yer.enlem);
+    const o = YILDIZ_OYKU[ad], halk = o && o[0] && !["Dubhe", "Merak", "Mizar"].includes(ad) ? o[0] : null;
+    const c = SKY.cons[y.v[1]];
+    yildizlar.push({ anahtar: "y:" + ad, ad: halk || ad, alt: `${halk ? ad + " · " : ""}${c ? c.tr : ""}`, h, mag: y.v[4] + (halk ? -3 : 0), oz });
+  }
+  yildizlar.sort((a, b) => (b.h.alt > 0) - (a.h.alt > 0) || a.mag - b.mag);
+  const hepsi = ogeler.concat(yildizlar.slice(0, 9));
+  ul.innerHTML = "";
+  if (!hepsi.length) { ul.innerHTML = `<li class="olcu" style="padding:8px 4px">Bu gece karanlık saatlerde ufkun üstüne çıkan parlak bir cisim yok.</li>`; return; }
+  for (const o of hepsi) {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.className = "satir"; b.type = "button";
+    if (o.anahtar === durum.secili) b.setAttribute("aria-current", "true");
+    const ustte = o.h.alt > 0;
+    b.innerHTML = `<span class="isaret" aria-hidden="true">${o.gezegen
+      ? `<svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" fill="var(--gezegen)"/><circle cx="7" cy="7" r="6.25" fill="none" stroke="var(--gezegen)" stroke-width="1"/></svg>`
+      : `<svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 0.5 L7.1 4.9 L11.5 6 L7.1 7.1 L6 11.5 L4.9 7.1 L0.5 6 L4.9 4.9 Z" fill="var(--murekkep)"/></svg>`}</span>
+      <span class="ad"><b></b><small></small></span><span class="yer ${ustte ? "ustte" : ""}"></span>`;
+    b.querySelector("b").textContent = o.ad;
+    b.querySelector("small").textContent = o.alt;
+    const sonra = o.oz && o.oz.dogus && o.oz.dogus > t ? `doğuş ${saatYaz(o.oz.dogus)}` : "ufkun altında";
+    b.querySelector(".yer").textContent = ustte ? `${yon(o.h.az)} ${Math.round(o.h.alt)}°` : sonra;
+    b.addEventListener("click", () => { durum.secili = o.anahtar; guncelle(false); });
+    li.append(b); ul.append(li);
+  }
+}
+function ustYaz() {
+  const t = anAl(), p = konumlar(t);
+  const tarih = t.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+  $("anlik").innerHTML = "";
+  const b = document.createElement("b"); b.textContent = durum.yer.ad;
+  $("anlik").append(b, ` · ${tarih}, ${saatYaz(t)}${durum.simdi ? " (şimdi)" : ""}`);
+  $("saat").textContent = saatYaz(t);
+  $("simdi").setAttribute("aria-pressed", durum.simdi);
+  const g = p.gunes.alt;
+  $("durum").textContent = durum.gunduzAcilis && !durum.simdi ? "Şu an gündüz; bu gecenin ilk karanlık saati gösteriliyor. Şu ana dönmek için Şimdi'ye bas."
+    : g > 0 ? "Güneş ufkun üstünde; şu an yıldızlar görünmez. Şeridi akşama kaydır."
+    : g > -6 ? "Sivil alacakaranlık: yalnızca gezegenler ve en parlak yıldızlar seçilir."
+    : g > -12 ? "Alacakaranlık sürüyor; yıldızlar birer birer beliriyor."
+    : g > -18 ? "Gök neredeyse tamamen karardı."
+    : "Tam karanlık. Telefonu başının üstüne kaldırıp K harfini kuzeye çevir; harita gökle eşleşir.";
+}
+function guncelle(ornekle) {
+  if (ornekle) { geceyiOrnekle(); seridiBoya(); }
+  $("kaydir").value = durum.dakika;
+  ciz(); ustYaz(); kartYaz(); listeYaz();
+}
+function varsayilanSecim() {
+  // açılışta en dikkat çekici görünen cismi seç: önce ufkun üstündeki parlak gezegen ya da Ay
+  const p = konumlar(anAl());
+  const aday = ["venus", "jupiter", "ay", "mars", "saturn"].find(k => p[k].alt > 5) ||
+    ["venus", "jupiter", "ay", "mars", "saturn"].find(k => { const o = ozet(k); return o && o.enIyi >= 0; });
+  durum.secili = aday || "y:Polaris";
+}
+
+/* Etkileşim */
+function enYakin(x, y, esik) {
+  let en = null, ed = esik * esik;
+  for (const n of durum.nesneler) {
+    const d = (n.x - x) ** 2 + (n.y - y) ** 2 + n.oncelik * 2;
+    if (d < ed) { ed = d; en = n; }
+  }
+  return en;
+}
+function takimBul(x, y) {
+  const p = konumlar(anAl()); let en = null, ed = 40 * 40;
+  for (const [kod, c] of Object.entries(SKY.cons)) {
+    const h = yatay(c.c[0], c.c[1], p.lst, durum.yer.enlem); if (h.alt < 5) continue;
+    const [cx, cy] = yansit(h.alt, h.az), d = (cx - x) ** 2 + (cy - y) ** 2;
+    if (d < ed) { ed = d; en = kod; }
+  }
+  return en;
+}
+tuval.addEventListener("click", e => {
+  const r = tuval.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  const n = enYakin(x, y, 22);
+  if (n) durum.secili = n.anahtar;
+  else { const t = durum.cizgi && takimBul(x, y); if (t) durum.secili = "t:" + t; else return; }
+  guncelle(false);
+});
+$("secim-ayrinti").addEventListener("click", () => {
+  if (uyg.classList.contains("tam")) $("tam-ekran").click();
+  setTimeout(() => $("kart").scrollIntoView({ block: "start" }), 60); // düz kaydırma: yumuşak kaydırma bazı görünümlerde hiç ilerlemiyor
+});
+tuval.addEventListener("pointermove", e => {
+  if (e.pointerType !== "mouse") return;
+  const r = tuval.getBoundingClientRect();
+  tuval.style.cursor = enYakin(e.clientX - r.left, e.clientY - r.top, 22) ? "pointer" : "default";
+});
+$("kaydir").addEventListener("input", e => { durum.dakika = +e.target.value; durum.simdi = false; durum.gunduzAcilis = false; ciz(); ustYaz(); kartYaz(); listeYaz(); });
+const serit = $("serit"), kaydir = $("kaydir");
+function seridenAyarla(e) {
+  const r = serit.getBoundingClientRect();
+  const v = Math.round(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * 1440 / 5) * 5;
+  if (v !== durum.dakika) { kaydir.value = v; kaydir.dispatchEvent(new Event("input", { bubbles: true })); }
+}
+let surukleyen = null; // dokunmatikte şeridi tutan parmak
+serit.addEventListener("pointerdown", e => {
+  if (e.pointerType === "mouse") return; // farede yerel kaydırıcı zaten her yerden tutar
+  surukleyen = e.pointerId;
+  try { serit.setPointerCapture(e.pointerId); } catch { /* yakalama desteklenmiyor */ }
+  seridenAyarla(e);
+});
+serit.addEventListener("pointermove", e => { if (e.pointerId === surukleyen) seridenAyarla(e); });
+for (const tur of ["pointerup", "pointercancel", "lostpointercapture"]) serit.addEventListener(tur, e => { if (e.pointerId === surukleyen) surukleyen = null; });
+$("simdi").addEventListener("click", () => { durum.gunduzAcilis = false; simdiyeDon(); tarihAlaniniYaz(); guncelle(true); });
+
+function anahtar(id, alan, sonra) {
+  const b = $(id);
+  b.addEventListener("click", () => {
+    durum[alan] = !durum[alan]; b.setAttribute("aria-pressed", durum[alan]);
+    if (sonra) sonra(); ciz();
+  });
+}
+anahtar("k-cizgi", "cizgi"); anahtar("k-ad", "adlar"); anahtar("k-sy", "samanyolu");
+anahtar("k-gece", "gece", () => {
+  if (durum.gece) document.documentElement.setAttribute("data-gece", "1"); else document.documentElement.removeAttribute("data-gece");
+  renkleriOku();
+});
+
+const sehirSec = $("sehir");
+SEHIRLER.forEach(([ad]) => { const o = document.createElement("option"); o.value = ad; o.textContent = ad; sehirSec.append(o); });
+const ozelOp = document.createElement("option"); ozelOp.value = "__ozel"; ozelOp.textContent = "Kendi koordinatım"; sehirSec.append(ozelOp);
+function yerAlanlariniYaz() {
+  sehirSec.value = SEHIRLER.some(s => s[0] === durum.yer.ad) ? durum.yer.ad : "__ozel";
+  $("enlem").value = sayi(durum.yer.enlem, 2); $("boylam").value = sayi(durum.yer.boylam, 2);
+}
+function tarihAlaniniYaz() {
+  const b = durum.temel, z = n => String(n).padStart(2, "0");
+  $("tarih").value = `${b.getFullYear()}-${z(b.getMonth() + 1)}-${z(b.getDate())}`;
+}
+function yerAyarla(yer) {
+  durum.yer = yer; yaz("usturlap-yer", JSON.stringify(yer)); yerAlanlariniYaz(); guncelle(true);
+}
+sehirSec.addEventListener("change", () => {
+  const s = SEHIRLER.find(x => x[0] === sehirSec.value);
+  if (s) yerAyarla({ ad: s[0], enlem: s[1], boylam: s[2] });
+  else { $("hata").textContent = "Enlem ve boylamı yaz, sonra alanın dışına dokun."; $("hata").hidden = false; $("enlem").focus(); }
+});
+function koordinatOku() {
+  const sayiAl = v => parseFloat(String(v).replace(",", ".").replace("−", "-"));
+  const en = sayiAl($("enlem").value), bo = sayiAl($("boylam").value), h = $("hata");
+  if (!(en >= -89.9 && en <= 89.9) || !(bo >= -180 && bo <= 180)) {
+    h.textContent = "Enlem −90 ile 90, boylam −180 ile 180 arasında bir sayı olmalı. Örnek: 39,42 ve 29,98."; h.hidden = false; return;
+  }
+  h.hidden = true;
+  if (Math.abs(en - durum.yer.enlem) < 0.005 && Math.abs(bo - durum.yer.boylam) < 0.005) return;
+  yerAyarla({ ad: `${sayi(Math.abs(en), 2)}° ${en >= 0 ? "K" : "G"}, ${sayi(Math.abs(bo), 2)}° ${bo >= 0 ? "D" : "B"}`, enlem: en, boylam: bo });
+}
+$("enlem").addEventListener("change", koordinatOku);
+$("boylam").addEventListener("change", koordinatOku);
+$("tarih").addEventListener("change", e => {
+  if (!e.target.value) return;
+  const [y, m, g] = e.target.value.split("-").map(Number);
+  if (!(y >= 1900 && y <= 2100)) return;
+  durum.temel = new Date(y, m - 1, g, 12, 0, 0, 0); durum.simdi = false; durum.gunduzAcilis = false;
+  if (durum.dakika < 300) durum.dakika = 540; // tarihe geçince akşam 21:00'i göster
+  guncelle(true);
+});
+
+/* Tam ekran: panelleri gizler; destekleyen tarayıcıda gerçek tam ekrana da geçer */
+const uyg = $("uygulama");
+function tamAyarla(ac) {
+  uyg.classList.toggle("tam", ac); document.documentElement.classList.toggle("tam", ac);
+  $("tam-ekran").setAttribute("aria-pressed", ac);
+  $("tam-yazi").textContent = ac ? "Panelleri göster" : "Tam ekran";
+  $("tam-ikon").setAttribute("d", ac ? "M6 2v4H2M14 6h-4V2M10 14v-4h4M2 10h4v4" : "M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4");
+}
+$("tam-ekran").addEventListener("click", () => {
+  const ac = !uyg.classList.contains("tam");
+  tamAyarla(ac);
+  try {
+    if (ac && document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    if (!ac && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  } catch { /* tam ekran desteklenmiyor; panel gizleme yeterli */ }
+});
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && uyg.classList.contains("tam")) tamAyarla(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && uyg.classList.contains("tam") && !document.fullscreenElement) tamAyarla(false); });
+
+/* Tema ve boyut değişimlerinde yeniden çiz */
+const yenidenCiz = () => { renkleriOku(); ciz(); };
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", yenidenCiz);
+new MutationObserver(yenidenCiz).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+new ResizeObserver(() => { boyutla(); ciz(); }).observe($("kubbe-kutu"));
+if (document.fonts) document.fonts.ready.then(() => ciz());
+setInterval(() => { if (durum.simdi) { const bas = durum.temel.getTime(); simdiyeDon(); guncelle(durum.temel.getTime() !== bas); } }, 60000);
+
+/* Başlat */
+simdiyeDon(); yerAlanlariniYaz(); renkleriOku(); boyutla();
+geceyiOrnekle();
+if (konumlar(anAl()).gunes.alt > -6) {
+  const t = new Date();
+  if (t.getHours() < 12) { durum.temel = new Date(t); durum.temel.setHours(12, 0, 0, 0); geceyiOrnekle(); }
+  const bas = durum.temel.getHours() < 12 ? 0 : Math.max(0, Math.round((t - durum.temel) / 300000));
+  const i = durum.gece_ornek.gunes.findIndex((a, k) => k >= bas && a < -18);
+  if (i >= 0) { durum.dakika = Math.ceil(i * 5 / 30) * 30; durum.simdi = false; durum.gunduzAcilis = true; }
+}
+tarihAlaniniYaz(); seridiBoya(); varsayilanSecim(); guncelle(false);
+})();
+</script>
