@@ -4,9 +4,11 @@
 
 Türkiye için bir gece gökyüzü haritası: 81 ilden birini (ya da kendi koordinatını) seç, o gece hangi yıldızların, gezegenlerin ve takımyıldızların görüneceğini Türkçe halk adları ve kısa hikâyeleriyle gör.
 
+🔭 **Tarayıcıda aç:** https://muhammedozkul.github.io/gece-usturlabi/
+
 <p align="center"><img src="media/desktop.png" alt="Kütahya'da saat 19:30'da gökyüzü: Ay Ülker'in yanında, Satürn güneydoğuda, takımyıldız çizgileri ve Samanyolu" width="900"></p>
 
-Kurulum yok: depoyu indir, `index.html` dosyasına çift tıkla. Yıldız kataloğu dahil her şey bu tek dosyanın içinde; yalnız yazı tipleri internetten gelir, internet yoksa yedek yazı tipleri kullanılır.
+İnternetsiz kullanmak için: depoyu indir, `index.html` dosyasına çift tıkla. Yıldız kataloğu dahil her şey bu tek dosyanın içinde; yalnız yazı tipleri internetten gelir, internet yoksa yedek yazı tipleri kullanılır.
 
 ## Neler yapıyor
 

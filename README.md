@@ -4,9 +4,11 @@
 
 A night sky map for Turkey: pick any of the 81 provinces (or your own coordinates) and see which stars, planets and constellations are up tonight, with Turkish folk star names and short stories.
 
+🔭 **Open in your browser:** https://muhammedozkul.github.io/gece-usturlabi/
+
 <p align="center"><img src="media/desktop.png" alt="Sky over Kütahya at 19:30: the Moon near the Pleiades, Saturn in the south-east, constellation lines and the Milky Way" width="900"></p>
 
-No installation: download the repository and double-click `index.html`. Everything (star catalogue included) is inside that one file; only the fonts come from the internet, with fallbacks if you are offline.
+Or, without internet: download the repository and double-click `index.html`. Everything (star catalogue included) is inside that one file; only the fonts come from the internet, with fallbacks if you are offline.
 
 ## What it does
 
